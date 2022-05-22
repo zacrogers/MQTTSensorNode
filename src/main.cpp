@@ -55,15 +55,27 @@ void setup()
 
     client.setServer(mqtt_server, 1883);
 
-	// dht.setup(D6, DHTesp::DHT11);
+	dht.setup(D6, DHTesp::DHT11);
 	pinMode(MUX_A, OUTPUT);
 	pinMode(MUX_B, OUTPUT);
 	digitalWrite(MUX_A, 0);
 	digitalWrite(MUX_B, 0);
 
     // read_sensors(&sensor_vals);
+    // if (!client.connected()) 
+    // {
+    //     // reconnect();
+    //     mqtt_connect();
+    //     // client.publish(topics[TEMPERATURE], String(sensor_vals.temperature).c_str());
+    // }
+    // else
+    // {
+    //     // client.publish(topics[LIGHT],       String(sensor_vals.light).c_str());
+    //     // client.publish(topics[HUMIDITY],    String(sensor_vals.humidity).c_str());
+    //     client.publish(topics[TEMPERATURE], String(sensor_vals.temperature).c_str());
+    // }   
 
-    // ESP.deepSleep(5e6); // uS 
+    // ESP.deepSleep(10e6); // uS 
 }
 
 void loop() 
@@ -76,8 +88,8 @@ void loop()
     }
     else
     {
-        // client.publish(topics[LIGHT],       String(sensor_vals.light).c_str());
-        // client.publish(topics[HUMIDITY],    String(sensor_vals.humidity).c_str());
+        client.publish(topics[LIGHT],       String(sensor_vals.light).c_str());
+        client.publish(topics[HUMIDITY],    String(sensor_vals.humidity).c_str());
         client.publish(topics[TEMPERATURE], String(sensor_vals.temperature).c_str());
     }   
     client.loop();
@@ -95,10 +107,19 @@ void read_sensors(sensor_vals_t* sensor_vals)
 	digitalWrite(MUX_B, 0);
 	analog_read = analogRead(ANALOG_PIN); 
 	sensor_vals->temperature = (analog_read * 1.0 / 1024) * 100;
-	delay(100);
+	delay(500);
 
-	// sensor_vals->humidity = dht.getHumidity();
-	delay(2000);
+    float humidity = dht.getHumidity();
+    delay(2000);
+
+    if(!isnan(humidity))
+    {
+        sensor_vals->humidity = humidity;
+    }
+
+
+    Serial.print("Temp: ");
+    Serial.println(sensor_vals->temperature);
 }
 
 void mqtt_connect()

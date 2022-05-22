@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <DHTesp.h>
